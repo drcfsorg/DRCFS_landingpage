@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Certificate — DRCFS</title>
+  <meta name="description" content="Verify your DRCFS certificate or credential using your unique code.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    @font-face {
+      font-family: 'Helvetica Now Variable Pro Roman';
+      src: local('Helvetica Now Variable Pro Roman'),
+           local('HelveticaNowVar-Roman'),
+           local('Helvetica Now Display'),
+           local('Helvetica Neue'),
+           local('Helvetica');
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
+    }
+  </style>
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0A0A0A;
+      --surface: #111111;
+      --surface-alt: #141414;
+      --accent: #FF6B2B;
+      --accent-light: #FFB347;
+      --text: #F5F5F5;
+      --text-muted: #888888;
+      --border: rgba(255, 107, 43, 0.15);
+      --glass-bg: rgba(255, 255, 255, 0.03);
+      --glass-border: rgba(255, 107, 43, 0.2);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Helvetica Now Variable Pro Roman', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 17px;
+      line-height: 1.7;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      padding: 20px 0;
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .navbar .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .navbar-brand {
+      font-weight: 800;
+      font-size: 28px;
+      color: var(--accent);
+      letter-spacing: -0.02em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: color 0.3s;
+      letter-spacing: 0.02em;
+    }
+
+    .nav-links a:hover { color: var(--accent); }
+    .nav-links a.active { color: var(--accent); font-weight: 600; }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--text);
+      transition: transform 0.3s, opacity 0.3s;
+    }
+
+    .hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.active span:nth-child(2) { opacity: 0; }
+    .hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: rgba(10, 10, 10, 0.97);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+    }
+
+    .mobile-menu.active { display: flex; }
+
+    .mobile-menu a {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text);
+      transition: color 0.3s;
+    }
+
+    .mobile-menu a:hover,
+    .mobile-menu a.active { color: var(--accent); }
+
+    /* PAGE */
+    .verify-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 120px 24px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .verify-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+    }
+
+    .verify-blob-1 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(255, 107, 43, 0.2), transparent 70%);
+      top: -5%;
+      right: -10%;
+    }
+
+    .verify-blob-2 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(255, 179, 71, 0.12), transparent 70%);
+      bottom: -10%;
+      left: -5%;
+    }
+
+    .verify-card {
+      position: relative;
+      z-index: 1;
+      background: var(--surface);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 56px 48px;
+      width: 100%;
+      max-width: 540px;
+      text-align: center;
+    }
+
+    .verify-icon {
+      width: 64px;
+      height: 64px;
+      background: rgba(255, 107, 43, 0.1);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 28px;
+    }
+
+    .verify-label {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .verify-title {
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+
+    .verify-desc {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 36px;
+      line-height: 1.7;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .verify-input {
+      flex: 1;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-family: inherit;
+      font-size: 16px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.3s, box-shadow 0.3s;
+      letter-spacing: 0.05em;
+    }
+
+    .verify-input::placeholder { color: var(--text-muted); }
+
+    .verify-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(255, 107, 43, 0.12);
+    }
+
+    .btn-verify {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      transition: transform 0.3s, box-shadow 0.3s, background 0.3s, opacity 0.3s;
+      white-space: nowrap;
+    }
+
+    .btn-verify:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(255, 107, 43, 0.35);
+    }
+
+    .btn-verify:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* STATES */
+    .state-area {
+      margin-top: 8px;
+    }
+
+    /* Loading */
+    .loading-indicator {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: var(--text-muted);
+      font-size: 14px;
+      padding: 16px 0;
+    }
+
+    .loading-indicator.active { display: flex; }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 107, 43, 0.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Error */
+    .error-box {
+      display: none;
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 10px;
+      padding: 14px 18px;
+      color: #f87171;
+      font-size: 14px;
+      text-align: left;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .error-box.active { display: flex; }
+
+    .error-box svg { flex-shrink: 0; margin-top: 2px; }
+
+    /* Certificate result */
+    .cert-result {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      margin-top: 8px;
+    }
+
+    .cert-result.active { display: flex; }
+
+    .cert-success-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      border-radius: 8px;
+      padding: 10px 18px;
+      color: #86efac;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .cert-image-wrapper {
+      width: 100%;
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .cert-image-wrapper img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .cert-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 24px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--glass-border);
+      background: transparent;
+      color: var(--text);
+      transition: border-color 0.3s, color 0.3s, background 0.3s;
+      text-decoration: none;
+    }
+
+    .cert-download:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(255, 107, 43, 0.05);
+    }
+
+    /* Divider */
+    .verify-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 28px 0;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+
+      .verify-card {
+        padding: 36px 24px;
+      }
+
+      .input-group {
+        flex-direction: column;
+      }
+
+      .btn-verify {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <a href="index.html" class="navbar-brand">DRCFS</a>
+      <ul class="nav-links">
+        <li><a href="index.html#hero">Home</a></li>
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="index.html#events">Events</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+        <li><a href="verify.html" class="active">Verify</a></li>
+      </ul>
+      <button class="hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- MOBILE MENU -->
+  <div class="mobile-menu" role="dialog" aria-label="Mobile navigation">
+    <a href="index.html#hero" class="mobile-link">Home</a>
+    <a href="index.html#about" class="mobile-link">About</a>
+    <a href="index.html#events" class="mobile-link">Events</a>
+    <a href="index.html#contact" class="mobile-link">Contact</a>
+    <a href="verify.html" class="mobile-link active">Verify</a>
+  </div>
+
+  <!-- VERIFY PAGE -->
+  <main class="verify-page">
+    <div class="verify-blob verify-blob-1"></div>
+    <div class="verify-blob verify-blob-2"></div>
+
+    <div class="verify-card">
+      <div class="verify-icon" aria-hidden="true">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <polyline points="9 12 11 14 15 10"/>
+        </svg>
+      </div>
+
+      <p class="verify-label">Certificate Verification</p>
+      <h1 class="verify-title">Verify Your Certificate</h1>
+      <p class="verify-desc">Enter your unique certificate code below to verify its authenticity and view your credential.</p>
+
+      <div class="input-group">
+        <input
+          type="text"
+          class="verify-input"
+          id="codeInput"
+          placeholder="Enter certificate code"
+          aria-label="Certificate code"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button class="btn-verify" id="verifyBtn" onclick="verifyCertificate()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <polyline points="9 12 11 14 15 10"/>
+          </svg>
+          Verify
+        </button>
+      </div>
+
+      <div class="state-area">
+        <!-- Loading -->
+        <div class="loading-indicator" id="loadingIndicator" aria-live="polite" aria-busy="true">
+          <div class="spinner"></div>
+          <span>Verifying certificate…</span>
+        </div>
+
+        <!-- Error -->
+        <div class="error-box" id="errorBox" role="alert">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <span id="errorMessage">Certificate not found. Please check your code and try again.</span>
+        </div>
+
+        <!-- Certificate result -->
+        <div class="cert-result" id="certResult">
+          <div class="cert-success-badge">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Certificate verified successfully
+          </div>
+
+          <div class="verify-divider"></div>
+
+          <div class="cert-image-wrapper">
+            <img id="certImage" src="" alt="Verified DRCFS certificate" />
+          </div>
+
+          <a id="certDownload" href="#" download="drcfs-certificate.png" class="cert-download">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Download Certificate
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      // Replace with actual base URL when available
+      var BASE_URL = 'https://api.placeholder.drcfs.org';
+
+      var codeInput = document.getElementById('codeInput');
+      var verifyBtn = document.getElementById('verifyBtn');
+      var loadingIndicator = document.getElementById('loadingIndicator');
+      var errorBox = document.getElementById('errorBox');
+      var errorMessage = document.getElementById('errorMessage');
+      var certResult = document.getElementById('certResult');
+      var certImage = document.getElementById('certImage');
+      var certDownload = document.getElementById('certDownload');
+
+      // Hamburger / mobile menu
+      var hamburger = document.querySelector('.hamburger');
+      var mobileMenu = document.querySelector('.mobile-menu');
+      var mobileLinks = document.querySelectorAll('.mobile-link');
+
+      hamburger.addEventListener('click', function () {
+        var isActive = hamburger.classList.toggle('active');
+        mobileMenu.classList.toggle('active');
+        hamburger.setAttribute('aria-expanded', isActive);
+        document.body.style.overflow = isActive ? 'hidden' : '';
+      });
+
+      mobileLinks.forEach(function (link) {
+        link.addEventListener('click', function () {
+          hamburger.classList.remove('active');
+          mobileMenu.classList.remove('active');
+          hamburger.setAttribute('aria-expanded', 'false');
+          document.body.style.overflow = '';
+        });
+      });
+
+      // Allow Enter key to trigger verification
+      codeInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') verifyCertificate();
+      });
+
+      function setState(state, msg) {
+        loadingIndicator.classList.remove('active');
+        errorBox.classList.remove('active');
+        certResult.classList.remove('active');
+        verifyBtn.disabled = false;
+
+        if (state === 'loading') {
+          loadingIndicator.classList.add('active');
+          verifyBtn.disabled = true;
+        } else if (state === 'error') {
+          errorMessage.textContent = msg || 'Certificate not found. Please check your code and try again.';
+          errorBox.classList.add('active');
+        } else if (state === 'success') {
+          certResult.classList.add('active');
+        }
+      }
+
+      window.verifyCertificate = function () {
+        var code = codeInput.value.trim();
+        if (!code) {
+          setState('error', 'Please enter a certificate code.');
+          return;
+        }
+
+        setState('loading');
+
+        fetch(BASE_URL + '/verify/' + encodeURIComponent(code))
+          .then(function (res) {
+            if (!res.ok) {
+              return res.text().then(function (text) {
+                throw new Error(text || 'Certificate not found or invalid code.');
+              });
+            }
+            var contentType = res.headers.get('content-type') || '';
+            if (contentType.indexOf('image') !== -1) {
+              return res.blob().then(function (blob) {
+                return { type: 'image', blob: blob };
+              });
+            }
+            // If the API returns a JSON with an image URL
+            return res.json().then(function (data) {
+              return { type: 'json', data: data };
+            });
+          })
+          .then(function (result) {
+            if (result.type === 'image') {
+              var objectURL = URL.createObjectURL(result.blob);
+              certImage.src = objectURL;
+              certDownload.href = objectURL;
+              certDownload.download = 'drcfs-certificate-' + code + '.png';
+              setState('success');
+            } else if (result.type === 'json') {
+              var imageUrl = result.data.image_url || result.data.url || result.data.certificate_url;
+              if (imageUrl) {
+                certImage.src = imageUrl;
+                certDownload.href = imageUrl;
+                certDownload.download = 'drcfs-certificate-' + code + '.png';
+                setState('success');
+              } else {
+                setState('error', 'Unexpected response format from server.');
+              }
+            }
+          })
+          .catch(function (err) {
+            var msg = err.message || '';
+            if (msg.toLowerCase().indexOf('failed to fetch') !== -1 || msg.toLowerCase().indexOf('networkerror') !== -1 || msg.toLowerCase().indexOf('network request failed') !== -1) {
+              msg = 'Unable to reach the verification server. Please check your internet connection and try again.';
+            } else if (!msg) {
+              msg = 'Something went wrong. Please try again.';
+            }
+            setState('error', msg);
+          });
+      };
+    })();
+  </script>
+</body>
+</html>

@@ -608,20 +608,15 @@
 
         fetch(BASE_URL + '/verify/' + encodeURIComponent(code))
           .then(function (res) {
-            if (!res.ok) {
-              return res.text().then(function (text) {
-                throw new Error(text || 'Certificate not found or invalid code.');
-              });
-            }
             var contentType = res.headers.get('content-type') || '';
             if (contentType.indexOf('image') !== -1) {
+              if (!res.ok) throw new Error('Certificate not found or invalid code.');
               return res.blob().then(function (blob) {
                 return { type: 'image', blob: blob };
               });
             }
-            // If the API returns a JSON with an image URL
             return res.json().then(function (data) {
-              return { type: 'json', data: data };
+              return { type: 'json', ok: res.ok, data: data };
             });
           })
           .then(function (result) {
@@ -639,7 +634,8 @@
                 certDownload.download = 'drcfs-certificate-' + code + '.png';
                 setState('success');
               } else {
-                setState('error', 'Unexpected response format from server.');
+                var serverMsg = result.data.message || result.data.error || result.data.detail;
+                setState('error', serverMsg || 'Certificate not found or invalid code.');
               }
             }
           })
